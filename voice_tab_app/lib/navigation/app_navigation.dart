@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:voice_tab_app/wrapper/main_wrapper.dart';
+import 'package:voice_tab_app/layout/main_layout.dart';
 import '../views/home/home_page.dart';
 import '../views/record/record_page.dart';
 import '../views/profile/profile_page.dart';
