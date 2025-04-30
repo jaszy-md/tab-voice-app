@@ -38,118 +38,127 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: const Color(0xFF271B43),
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Mood-filter blok
+            // Mood-selectie + show all knop
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 510),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 20,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.purpleAccent, width: 2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Kies een stemming om te filteren',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 510),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 20,
                         ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 10,
-                          alignment: WrapAlignment.center,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.purpleAccent,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
                           children: [
-                            _buildMoodIcon('happy'),
-                            _buildMoodIcon('sad'),
-                            _buildMoodIcon('love'),
-                            _buildMoodIcon('angry'),
+                            const Text(
+                              'Kies een stemming om te filteren',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Wrap(
+                              spacing: 10,
+                              alignment: WrapAlignment.center,
+                              children: [
+                                _buildMoodIcon('happy'),
+                                _buildMoodIcon('sad'),
+                                _buildMoodIcon('love'),
+                                _buildMoodIcon('angry'),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Show All knop
-            Padding(
-              padding: const EdgeInsets.only(left: 30, top: 0, bottom: 4),
-              child: ElevatedButton(
-                onPressed: () {
-                  setState(() => _selectedMoodFilter = null);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _selectedMoodFilter == null
-                          ? Colors.purpleAccent
-                          : Colors.white24,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
+                  const SizedBox(height: 6),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() => _selectedMoodFilter = null);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          _selectedMoodFilter == null
+                              ? Colors.purpleAccent
+                              : Colors.white24,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Show All'),
                   ),
-                ),
-                child: const Text('Show All'),
+                ],
               ),
             ),
 
-            // Memo-knoppen container
+            const SizedBox(height: 10),
+
+            // Memo-knoppen
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.center,
-                  children:
-                      homeButtons.map((msg) {
-                        return ElevatedButton(
-                          onPressed: () => _togglePlayback(msg.path),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: msg.color,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              side: const BorderSide(
-                                color: Colors.black,
-                                width: 1,
+                child: Center(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.center,
+                    children:
+                        homeButtons.map((msg) {
+                          return ElevatedButton(
+                            onPressed: () => _togglePlayback(msg.path),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: msg.color,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
                               ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(
-                            msg.text,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  offset: Offset(1, 1),
-                                  blurRadius: 2,
+                              shape: RoundedRectangleBorder(
+                                side: const BorderSide(
                                   color: Colors.black,
+                                  width: 1,
                                 ),
-                              ],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
-                          ),
-                        );
-                      }).toList(),
+                            child: Text(
+                              msg.text,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(1, 1),
+                                    blurRadius: 2,
+                                    color: Colors.black,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                  ),
                 ),
               ),
             ),
