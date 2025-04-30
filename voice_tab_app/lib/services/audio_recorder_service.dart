@@ -1,0 +1,90 @@
+import 'dart:async';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:uuid/uuid.dart';
+
+class AudioRecorderService {
+  final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
+  AudioPlayer? _player;
+
+  bool _isInitialized = false;
+
+  Future<void> init() async {
+    if (_isInitialized) return;
+
+    final status = await Permission.microphone.request();
+    if (!status.isGranted) {
+      throw Exception('Microfoon niet toegestaan');
+    }
+
+    await _recorder.openRecorder();
+    _isInitialized = true;
+  }
+
+  Future<String> startRecording() async {
+    await init();
+
+    final dir = await getTemporaryDirectory();
+    final filePath = '${dir.path}/${const Uuid().v4()}.aac';
+
+    await _recorder.startRecorder(toFile: filePath, codec: Codec.aacADTS);
+
+    return filePath;
+  }
+
+  Future<void> stopRecording() async {
+    await _recorder.stopRecorder();
+  }
+
+  Future<void> play(String path, {double volume = 2}) async {
+    await stopPlayback(); // forceer stoppen vóór opnieuw afspelen
+    _player = AudioPlayer();
+    await _player!.setFilePath(path);
+    _player!.setVolume(volume);
+    await _player!.play();
+  }
+
+  Future<void> stopPlayback() async {
+    if (_player != null) {
+      await _player!.stop();
+      await _player!.dispose();
+      _player = null;
+    }
+  }
+
+  Future<void> dispose() async {
+    await _recorder.closeRecorder();
+    await stopPlayback();
+  }
+
+  bool get isRecording => _recorder.isRecording;
+  bool get isPlaying => _player?.playing ?? false;
+
+  Future<String?> importAudio() async {
+    bool granted = false;
+
+    if (Platform.isAndroid) {
+      if (await Permission.audio.request().isGranted ||
+          await Permission.storage.request().isGranted) {
+        granted = true;
+      }
+    } else if (Platform.isIOS || Platform.isMacOS) {
+      if (await Permission.mediaLibrary.request().isGranted) {
+        granted = true;
+      }
+    }
+
+    if (!granted) return null;
+
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['aac', 'm4a', 'mp3', 'wav'],
+    );
+
+    return result?.files.single.path;
+  }
+}
