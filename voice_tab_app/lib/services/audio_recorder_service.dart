@@ -41,15 +41,27 @@ class AudioRecorderService {
   }
 
   Future<void> play(String path, {double volume = 2}) async {
-    if (!File(path).existsSync()) {
-      print('Audio bestand niet gevonden: $path');
-      return;
-    }
-
     await _player.stop();
-    await _player.setFilePath(path);
-    _player.setVolume(volume);
-    await _player.play();
+
+    try {
+      if (path.startsWith('assets/')) {
+        // ✅ Asset audio-bestand afspelen
+        await _player.setAsset(path);
+      } else {
+        // ✅ Lokale opname afspelen
+        final file = File(path);
+        if (!file.existsSync()) {
+          print('Audio bestand niet gevonden: $path');
+          return;
+        }
+        await _player.setFilePath(path);
+      }
+
+      _player.setVolume(volume);
+      await _player.play();
+    } catch (e) {
+      print('Fout bij afspelen van $path: $e');
+    }
   }
 
   Future<void> stopPlayback() async {

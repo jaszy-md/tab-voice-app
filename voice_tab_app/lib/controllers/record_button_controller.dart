@@ -16,7 +16,16 @@ class RecordButtonController extends ChangeNotifier {
     bool addToHome = false,
   }) {
     final color = _getColorForMood(mood);
-    final newButton = RecordButton(text: text, path: path, color: color);
+    final newButton = RecordButton(
+      text: text,
+      path: path,
+      color: color,
+      mood: mood,
+      isAsset: path.startsWith(
+        'assets/',
+      ), // ✅ dit geeft aan dat het een asset is
+    );
+
     _buttons[mood]?.add(newButton);
     if (addToHome) {
       _buttons['home']?.add(newButton);
@@ -25,6 +34,36 @@ class RecordButtonController extends ChangeNotifier {
   }
 
   List<RecordButton> getButtons(String mood) => _buttons[mood] ?? [];
+
+  /// Deze functie voegt de standaard audio-knoppen toe bij de eerste keer laden
+  void initializeDefaults() {
+    if (_buttons['home']!.isEmpty) {
+      addButton(
+        'happy',
+        'Ik zou graag naar buiten willen',
+        'assets/audio/happy_default_audio.mp3',
+        addToHome: true,
+      );
+      addButton(
+        'sad',
+        'Ik voel mij niet zo lekker helaas',
+        'assets/audio/sad_default_audio.mp3',
+        addToHome: true,
+      );
+      addButton(
+        'angry',
+        'Kan je daar mee ophouden?',
+        'assets/audio/angry_default_audio.mp3',
+        addToHome: true,
+      );
+      addButton(
+        'love',
+        'Mag ik een knuffel?',
+        'assets/audio/love_default_audio.mp3',
+        addToHome: true,
+      );
+    }
+  }
 
   Color _getColorForMood(String mood) {
     switch (mood) {
@@ -46,6 +85,14 @@ class RecordButton {
   final String text;
   final String path;
   final Color color;
+  final String mood;
+  final bool isAsset;
 
-  RecordButton({required this.text, required this.path, required this.color});
+  RecordButton({
+    required this.text,
+    required this.path,
+    required this.color,
+    required this.mood,
+    this.isAsset = false,
+  });
 }

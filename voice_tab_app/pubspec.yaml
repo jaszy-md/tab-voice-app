@@ -50,6 +50,10 @@ flutter:
     - assets/images/sad-mood.png
     - assets/images/happy-mood.png
     - assets/images/love-mood.png
+    - assets/audio/angry_default_audio.mp3
+    - assets/audio/happy_default_audio.mp3
+    - assets/audio/love_default_audio.mp3
+    - assets/audio/sad_default_audio.mp3
 
 flutter_icons:
   android: true

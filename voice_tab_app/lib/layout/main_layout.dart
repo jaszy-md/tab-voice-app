@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../controllers/record_button_controller.dart';
 
-class MainLayout extends StatelessWidget {
+class MainLayout extends StatefulWidget {
   final Widget? child;
   final StatefulNavigationShell? navigationShell;
   final String? activeMood;
@@ -14,12 +16,32 @@ class MainLayout extends StatelessWidget {
   });
 
   @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> {
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      final controller = Provider.of<RecordButtonController>(
+        context,
+        listen: false,
+      );
+      controller.initializeDefaults();
+      _initialized = true;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final uri = GoRouterState.of(context).uri.toString();
     final isRecord = uri.startsWith('/record');
     final selectedIndex = _getSelectedIndex(uri);
     final Widget content =
-        navigationShell != null ? navigationShell! : child ?? const SizedBox();
+        widget.navigationShell ?? widget.child ?? const SizedBox();
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1333),
@@ -37,7 +59,7 @@ class MainLayout extends StatelessWidget {
             ),
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.only(top: 20),
+                padding: const EdgeInsets.only(top: 30),
                 child: Image.asset(
                   'assets/images/logo-title-white.png',
                   height: 50,
