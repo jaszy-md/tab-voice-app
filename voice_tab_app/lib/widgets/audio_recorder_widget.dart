@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../services/audio_recorder_service.dart';
@@ -15,7 +16,7 @@ class AudioRecorderWidget extends StatefulWidget {
 }
 
 class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
-  final _audioService = AudioRecorderService(); // singleton instance
+  final _audioService = AudioRecorderService();
   String? recordedPath;
   Timer? _timer;
   int _secondsLeft = 30;
@@ -24,7 +25,6 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   @override
   void dispose() {
     _timer?.cancel();
-    // geen _audioService.dispose() meer!
     super.dispose();
   }
 
@@ -92,14 +92,12 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
                 context,
                 listen: false,
               );
-
               controller.addButton(
                 widget.mood,
                 text,
                 recordedPath!,
                 addToHome: alsoAddToHome,
               );
-
               setState(() => recordedPath = null);
               Navigator.of(context).pop();
             },
@@ -205,14 +203,24 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
           const SizedBox(height: 10),
           Container(height: 4, color: Colors.purpleAccent),
           const SizedBox(height: 10),
-          SingleChildScrollView(
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children:
-                  savedMessages
-                      .map(
-                        (msg) => ElevatedButton(
+          FocusTraversalGroup(
+            policy: OrderedTraversalPolicy(),
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children:
+                    savedMessages.map((msg) {
+                      return Focus(
+                        onKey: (node, event) {
+                          if (event.logicalKey == LogicalKeyboardKey.enter ||
+                              event.logicalKey == LogicalKeyboardKey.space) {
+                            _togglePlayback(msg.path);
+                            return KeyEventResult.handled;
+                          }
+                          return KeyEventResult.ignored;
+                        },
+                        child: ElevatedButton(
                           onPressed: () => _togglePlayback(msg.path),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: msg.color,
@@ -235,8 +243,9 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
                             ),
                           ),
                         ),
-                      )
-                      .toList(),
+                      );
+                    }).toList(),
+              ),
             ),
           ),
         ],

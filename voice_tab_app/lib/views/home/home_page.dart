@@ -16,9 +16,8 @@ class _HomePageState extends State<HomePage> {
   Future<void> _togglePlayback(String path) async {
     if (_audioService.isPlaying) {
       await _audioService.stopPlayback();
-    } else {
-      await _audioService.play(path);
     }
+    await _audioService.play(path);
     await Future.delayed(const Duration(milliseconds: 100));
     setState(() {});
   }
@@ -43,36 +42,41 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(fontSize: 24, color: Colors.white),
               ),
               const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.center,
-                children:
-                    homeButtons.map((msg) {
-                      return ElevatedButton(
-                        onPressed: () => _togglePlayback(msg.path),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: msg.color,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                        ),
-                        child: Text(
-                          msg.text,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(1, 1),
-                                blurRadius: 2,
-                                color: Colors.black,
+              FocusTraversalGroup(
+                policy: OrderedTraversalPolicy(),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children:
+                      homeButtons.map((msg) {
+                        return Focus(
+                          child: ElevatedButton(
+                            onPressed: () => _togglePlayback(msg.path),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: msg.color,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
                               ),
-                            ],
+                            ),
+                            child: Text(
+                              msg.text,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(1, 1),
+                                    blurRadius: 2,
+                                    color: Colors.black,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                ),
               ),
             ],
           ),
