@@ -9,7 +9,7 @@ import 'package:uuid/uuid.dart';
 
 class AudioRecorderService {
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
-  AudioPlayer? _player;
+  final AudioPlayer _player = AudioPlayer();
 
   bool _isInitialized = false;
 
@@ -28,7 +28,7 @@ class AudioRecorderService {
   Future<String> startRecording() async {
     await init();
 
-    final dir = await getTemporaryDirectory();
+    final dir = await getApplicationDocumentsDirectory(); // permanente opslag
     final filePath = '${dir.path}/${const Uuid().v4()}.aac';
 
     await _recorder.startRecorder(toFile: filePath, codec: Codec.aacADTS);
@@ -41,28 +41,27 @@ class AudioRecorderService {
   }
 
   Future<void> play(String path, {double volume = 2}) async {
-    await stopPlayback(); // forceer stoppen vóór opnieuw afspelen
-    _player = AudioPlayer();
-    await _player!.setFilePath(path);
-    _player!.setVolume(volume);
-    await _player!.play();
+    if (!File(path).existsSync()) {
+      print('Audio bestand niet gevonden: $path');
+      return;
+    }
+
+    await _player.stop();
+    await _player.setFilePath(path);
+    _player.setVolume(volume);
+    await _player.play();
   }
 
   Future<void> stopPlayback() async {
-    if (_player != null) {
-      await _player!.stop();
-      await _player!.dispose();
-      _player = null;
-    }
+    await _player.stop();
   }
 
   Future<void> dispose() async {
     await _recorder.closeRecorder();
-    await stopPlayback();
   }
 
   bool get isRecording => _recorder.isRecording;
-  bool get isPlaying => _player?.playing ?? false;
+  bool get isPlaying => _player.playing;
 
   Future<String?> importAudio() async {
     bool granted = false;
@@ -85,6 +84,16 @@ class AudioRecorderService {
       allowedExtensions: ['aac', 'm4a', 'mp3', 'wav'],
     );
 
-    return result?.files.single.path;
+    final path = result?.files.single.path;
+    if (path == null) return null;
+
+    final validExtensions = ['aac', 'm4a', 'mp3', 'wav'];
+    final extension = path.split('.').last.toLowerCase();
+
+    if (!validExtensions.contains(extension)) {
+      return 'INVALID';
+    }
+
+    return path;
   }
 }

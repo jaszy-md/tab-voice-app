@@ -15,7 +15,7 @@ class AudioRecorderWidget extends StatefulWidget {
 }
 
 class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
-  final _audioService = AudioRecorderService();
+  final _audioService = AudioRecorderService(); // singleton instance
   String? recordedPath;
   Timer? _timer;
   int _secondsLeft = 30;
@@ -24,7 +24,7 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   @override
   void dispose() {
     _timer?.cancel();
-    _audioService.dispose();
+    // geen _audioService.dispose() meer!
     super.dispose();
   }
 
@@ -69,12 +69,10 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   Future<void> _importAudio() async {
     final path = await _audioService.importAudio();
 
-    if (path == null) {
+    if (path == null || path == 'INVALID') {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Toegang geweigerd of geen bestand gekozen'),
-          ),
+          const SnackBar(content: Text('Geen geldig audiobestand gekozen')),
         );
       }
       return;
@@ -94,12 +92,14 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
                 context,
                 listen: false,
               );
+
               controller.addButton(
                 widget.mood,
                 text,
                 recordedPath!,
                 addToHome: alsoAddToHome,
               );
+
               setState(() => recordedPath = null);
               Navigator.of(context).pop();
             },
@@ -223,7 +223,16 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
                           ),
                           child: Text(
                             msg.text,
-                            style: const TextStyle(color: Colors.white),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(1, 1),
+                                  blurRadius: 2,
+                                  color: Colors.black,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       )

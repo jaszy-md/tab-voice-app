@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:voice_tab_app/widgets/audio_recorder_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:voice_tab_app/controllers/record_button_controller.dart';
+import 'package:voice_tab_app/services/audio_recorder_service.dart';
 
 class HomePage extends StatefulWidget {
-  static final List<Map<String, dynamic>> homeMessages = [];
-
   const HomePage({super.key});
 
   @override
@@ -11,8 +11,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _audioService = AudioRecorderService();
+
+  Future<void> _togglePlayback(String path) async {
+    if (_audioService.isPlaying) {
+      await _audioService.stopPlayback();
+    } else {
+      await _audioService.play(path);
+    }
+    await Future.delayed(const Duration(milliseconds: 100));
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<RecordButtonController>(context);
+    final homeButtons = controller.getButtons('home');
+
     return Scaffold(
       backgroundColor: const Color(0xFF271B43),
       body: SafeArea(
@@ -33,21 +48,28 @@ class _HomePageState extends State<HomePage> {
                 runSpacing: 8,
                 alignment: WrapAlignment.center,
                 children:
-                    HomePage.homeMessages.map((msg) {
+                    homeButtons.map((msg) {
                       return ElevatedButton(
-                        onPressed: () async {
-                          // Add playback service here if needed
-                        },
+                        onPressed: () => _togglePlayback(msg.path),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: msg['color'],
+                          backgroundColor: msg.color,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 8,
                           ),
                         ),
                         child: Text(
-                          msg['text'],
-                          style: const TextStyle(color: Colors.white),
+                          msg.text,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1, 1),
+                                blurRadius: 2,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }).toList(),
