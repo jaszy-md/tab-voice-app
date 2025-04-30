@@ -11,55 +11,15 @@ import '../views/record/record_love_page.dart';
 class AppNavigation {
   AppNavigation._();
 
-  static final _rootNavigatorKey = GlobalKey<NavigatorState>();
-
   static final GoRouter router = GoRouter(
     initialLocation: '/home',
-    navigatorKey: _rootNavigatorKey,
     routes: [
-      // Record pages (los van shell, met NoTransitionPage)
-      GoRoute(
-        path: '/record',
-        pageBuilder:
-            (context, state) => const NoTransitionPage(
-              child: MainLayout(activeMood: 'happy', child: RecordHappyPage()),
-            ),
-      ),
-      GoRoute(
-        path: '/record/happy',
-        pageBuilder:
-            (context, state) => const NoTransitionPage(
-              child: MainLayout(activeMood: 'happy', child: RecordHappyPage()),
-            ),
-      ),
-      GoRoute(
-        path: '/record/sad',
-        pageBuilder:
-            (context, state) => const NoTransitionPage(
-              child: MainLayout(activeMood: 'sad', child: RecordSadPage()),
-            ),
-      ),
-      GoRoute(
-        path: '/record/angry',
-        pageBuilder:
-            (context, state) => const NoTransitionPage(
-              child: MainLayout(activeMood: 'angry', child: RecordAngryPage()),
-            ),
-      ),
-      GoRoute(
-        path: '/record/love',
-        pageBuilder:
-            (context, state) => const NoTransitionPage(
-              child: MainLayout(activeMood: 'love', child: RecordLovePage()),
-            ),
-      ),
-
-      // Home en Profile met StatefulShell + NoTransitionPage
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return MainLayout(navigationShell: navigationShell);
         },
         branches: [
+          // Home
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -70,6 +30,7 @@ class AppNavigation {
               ),
             ],
           ),
+          // Profile
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -77,6 +38,41 @@ class AppNavigation {
                 pageBuilder:
                     (context, state) =>
                         const NoTransitionPage(child: ProfilePage()),
+              ),
+            ],
+          ),
+          // Record + mood pages
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/record',
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: RecordHappyPage()),
+              ),
+              GoRoute(
+                path: '/record/happy',
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: RecordHappyPage()),
+              ),
+              GoRoute(
+                path: '/record/sad',
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: RecordSadPage()),
+              ),
+              GoRoute(
+                path: '/record/angry',
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: RecordAngryPage()),
+              ),
+              GoRoute(
+                path: '/record/love',
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: RecordLovePage()),
               ),
             ],
           ),

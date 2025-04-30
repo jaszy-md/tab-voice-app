@@ -18,13 +18,13 @@ class MainLayout extends StatelessWidget {
     final uri = GoRouterState.of(context).uri.toString();
     final isRecord = uri.startsWith('/record');
     final selectedIndex = _getSelectedIndex(uri);
-    final Widget content = navigationShell ?? child!;
+    final Widget content =
+        navigationShell != null ? navigationShell! : child ?? const SizedBox();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF271B43),
+      backgroundColor: const Color(0xFF1A1333),
       body: Column(
         children: [
-          // Header
           Container(
             height: 100,
             width: double.infinity,
@@ -46,8 +46,6 @@ class MainLayout extends StatelessWidget {
               ),
             ),
           ),
-
-          // Mood nav
           if (isRecord)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -66,8 +64,6 @@ class MainLayout extends StatelessWidget {
                 ],
               ),
             ),
-
-          // Page content
           Expanded(child: content),
         ],
       ),
@@ -138,7 +134,7 @@ class MainLayout extends StatelessWidget {
   int _getSelectedIndex(String uri) {
     if (uri.startsWith('/home')) return 0;
     if (uri.startsWith('/profile')) return 2;
-    return 1; // record
+    return 1;
   }
 
   Widget _buildMoodIcon(BuildContext context, String mood, String uri) {

@@ -6,7 +6,6 @@ class RecordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF271B43),
       body: const Center(
         child: Text(
           'Record Page',
