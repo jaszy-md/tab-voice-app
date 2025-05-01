@@ -19,17 +19,14 @@ jobs:
         with:
           flutter-version: "3.29.3"
 
-      - name: Install Flutter Dependencies
+      - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run Tests (optional)
-        run: flutter test || echo "Tests failed, continuing..."
-
-      - name: Build APK (debug)
+      - name: Build APK
         run: flutter build apk --debug
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: app-debug
           path: build/app/outputs/flutter-apk/app-debug.apk
