@@ -74,7 +74,7 @@ class _MainLayoutState extends State<MainLayout> {
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white24, width: 2),
+                border: Border.all(color: Color(0xFFC6A6FF), width: 2),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

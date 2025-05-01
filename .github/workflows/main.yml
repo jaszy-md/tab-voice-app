@@ -2,11 +2,9 @@ name: Flutter CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
@@ -21,14 +19,17 @@ jobs:
         with:
           flutter-version: "3.29.3"
 
-      - name: Install Dependencies
+      - name: Install Flutter Dependencies
         run: flutter pub get
 
-      - name: Build APK
+      - name: Run Tests (optional)
+        run: flutter test || echo "Tests failed, continuing..."
+
+      - name: Build APK (debug)
         run: flutter build apk --debug
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v3.1.3
+        uses: actions/upload-artifact@v3
         with:
           name: app-debug
           path: build/app/outputs/flutter-apk/app-debug.apk

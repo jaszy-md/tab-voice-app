@@ -40,83 +40,84 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Mood-selectie + show all knop
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 510),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 20,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.purpleAccent,
-                            width: 2,
+            Transform.translate(
+              offset: const Offset(0, -15),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 510),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 20,
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          children: [
-                            const Text(
-                              'Kies een stemming om te filteren',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.purpleAccent,
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Column(
+                            children: [
+                              const Text(
+                                'Kies een stemming om te filteren',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            Wrap(
-                              spacing: 10,
-                              alignment: WrapAlignment.center,
-                              children: [
-                                _buildMoodIcon('happy'),
-                                _buildMoodIcon('sad'),
-                                _buildMoodIcon('love'),
-                                _buildMoodIcon('angry'),
-                              ],
-                            ),
-                          ],
+                              const SizedBox(height: 10),
+                              Wrap(
+                                spacing: 10,
+                                alignment: WrapAlignment.center,
+                                children: [
+                                  _buildMoodIcon('happy'),
+                                  _buildMoodIcon('sad'),
+                                  _buildMoodIcon('love'),
+                                  _buildMoodIcon('angry'),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() => _selectedMoodFilter = null);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          _selectedMoodFilter == null
-                              ? Colors.purpleAccent
-                              : Colors.white24,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
+                    const SizedBox(height: 6),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() => _selectedMoodFilter = null);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            _selectedMoodFilter == null
+                                ? Colors.purpleAccent
+                                : Colors.white24,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      child: const Text('Show All'),
                     ),
-                    child: const Text('Show All'),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
 
-            // Memo-knoppen
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),

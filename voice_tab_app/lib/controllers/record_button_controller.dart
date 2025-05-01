@@ -21,9 +21,7 @@ class RecordButtonController extends ChangeNotifier {
       path: path,
       color: color,
       mood: mood,
-      isAsset: path.startsWith(
-        'assets/',
-      ), // ✅ dit geeft aan dat het een asset is
+      isAsset: path.startsWith('assets/'),
     );
 
     _buttons[mood]?.add(newButton);
@@ -35,7 +33,6 @@ class RecordButtonController extends ChangeNotifier {
 
   List<RecordButton> getButtons(String mood) => _buttons[mood] ?? [];
 
-  /// Deze functie voegt de standaard audio-knoppen toe bij de eerste keer laden
   void initializeDefaults() {
     if (_buttons['home']!.isEmpty) {
       addButton(
@@ -46,7 +43,7 @@ class RecordButtonController extends ChangeNotifier {
       );
       addButton(
         'sad',
-        'Ik voel mij niet zo lekker helaas',
+        'Ik voel mij helaas niet zo goed',
         'assets/audio/sad_default_audio.mp3',
         addToHome: true,
       );
