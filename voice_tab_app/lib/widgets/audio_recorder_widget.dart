@@ -1,8 +1,7 @@
+// Bestand: AudioRecorderWidget.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
 import '../services/audio_recorder_service.dart';
 import 'audio_popup_dialog.dart';
 import '../controllers/record_button_controller.dart';
@@ -83,22 +82,26 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   }
 
   void _showSavePopup() {
+    final controller = Provider.of<RecordButtonController>(
+      context,
+      listen: false,
+    );
+    final existingTitles =
+        controller.getButtons(widget.mood).map((b) => b.text).toList();
+
     showDialog(
       context: context,
       builder:
           (context) => AudioPopupDialog(
+            existingTitles: existingTitles,
             onConfirm: (text, alsoAddToHome) {
-              final controller = Provider.of<RecordButtonController>(
-                context,
-                listen: false,
-              );
               controller.addButton(
                 widget.mood,
                 text,
                 recordedPath!,
                 addToHome: alsoAddToHome,
               );
-              setState(() => recordedPath = null);
+              _resetRecording(); // ✅ Timer reset hier ook na opslaan
               Navigator.of(context).pop();
             },
             onCancel: () {
@@ -110,6 +113,7 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   }
 
   void _resetRecording() {
+    _timer?.cancel();
     setState(() {
       recordedPath = null;
       isRecording = false;
@@ -117,17 +121,95 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
     });
   }
 
+  void _confirmDelete(String title) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: const Color(0xFF1A1333),
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(color: Colors.purpleAccent),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Weet je zeker dat je deze knop wilt verwijderen?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        final controller = Provider.of<RecordButtonController>(
+                          context,
+                          listen: false,
+                        );
+                        controller.removeButton(widget.mood, title);
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      icon: const Icon(Icons.delete, color: Colors.white),
+                      label: const Text(
+                        'Verwijder',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      label: const Text(
+                        'Annuleer',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<RecordButtonController>(context);
     final savedMessages = controller.getButtons(widget.mood);
 
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
@@ -200,56 +282,49 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Container(height: 4, color: Colors.purpleAccent),
-          const SizedBox(height: 10),
-          FocusTraversalGroup(
-            policy: OrderedTraversalPolicy(),
-            child: SingleChildScrollView(
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children:
-                    savedMessages.map((msg) {
-                      return Focus(
-                        onKey: (node, event) {
-                          if (event.logicalKey == LogicalKeyboardKey.enter ||
-                              event.logicalKey == LogicalKeyboardKey.space) {
-                            _togglePlayback(msg.path);
-                            return KeyEventResult.handled;
-                          }
-                          return KeyEventResult.ignored;
-                        },
-                        child: ElevatedButton(
-                          onPressed: () => _togglePlayback(msg.path),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: msg.color,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                          ),
-                          child: Text(
-                            msg.text,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  offset: Offset(1, 1),
-                                  blurRadius: 2,
-                                  color: Colors.black,
-                                ),
-                              ],
-                            ),
+        ),
+        const SizedBox(height: 6),
+        const Divider(color: Colors.purpleAccent, height: 1),
+        const SizedBox(height: 6),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children:
+                  savedMessages.map((msg) {
+                    return GestureDetector(
+                      onLongPress: () => _confirmDelete(msg.text),
+                      child: ElevatedButton(
+                        onPressed: () => _togglePlayback(msg.path),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: msg.color,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
                           ),
                         ),
-                      );
-                    }).toList(),
-              ),
+                        child: Text(
+                          msg.text,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1, 1),
+                                blurRadius: 2,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

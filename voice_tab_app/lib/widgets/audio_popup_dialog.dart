@@ -1,13 +1,16 @@
+// Bestand: audio_popup_dialog.dart
 import 'package:flutter/material.dart';
 
 class AudioPopupDialog extends StatefulWidget {
   final Function(String, bool) onConfirm;
   final VoidCallback onCancel;
+  final List<String> existingTitles;
 
   const AudioPopupDialog({
     super.key,
     required this.onConfirm,
     required this.onCancel,
+    this.existingTitles = const [],
   });
 
   @override
@@ -16,6 +19,33 @@ class AudioPopupDialog extends StatefulWidget {
 
 class _AudioPopupDialogState extends State<AudioPopupDialog> {
   final TextEditingController _controller = TextEditingController();
+  String? _errorText;
+
+  void _handleConfirm(bool addToHome) {
+    final text = _controller.text.trim();
+
+    if (text.isEmpty) {
+      setState(() => _errorText = 'Je moet iets invullen');
+      return;
+    }
+
+    if (text.length > 35) {
+      setState(() => _errorText = 'Maximaal 35 tekens toegestaan');
+      return;
+    }
+
+    final normalizedInput = text.toLowerCase();
+    final normalizedTitles =
+        widget.existingTitles.map((t) => t.toLowerCase().trim()).toList();
+
+    if (normalizedTitles.contains(normalizedInput)) {
+      setState(() => _errorText = 'Er bestaat al een knop met deze naam');
+      return;
+    }
+
+    setState(() => _errorText = null);
+    widget.onConfirm(text, addToHome);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,31 +57,52 @@ class _AudioPopupDialogState extends State<AudioPopupDialog> {
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text('Button text:', style: TextStyle(color: Colors.white)),
+          const Text(
+            'Voer een titel in:',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 8),
           TextField(
             controller: _controller,
-            decoration: const InputDecoration(
-              border: UnderlineInputBorder(),
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              border: const UnderlineInputBorder(),
               hintText: 'Type hier...',
-              hintStyle: TextStyle(color: Colors.white54),
+              hintStyle: const TextStyle(color: Colors.white54),
+              errorText: _errorText,
+              errorStyle: const TextStyle(color: Colors.redAccent),
             ),
             style: const TextStyle(color: Colors.white),
+            onChanged: (_) {
+              if (_errorText != null) {
+                setState(() => _errorText = null);
+              }
+            },
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          const SizedBox(height: 20),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 10,
+            runSpacing: 10,
             children: [
-              _popupButton(Icons.check, Colors.green, () {
-                widget.onConfirm(_controller.text, false);
-              }),
-              const SizedBox(width: 8),
+              _popupButton(
+                Icons.check,
+                Colors.green,
+                () => _handleConfirm(false),
+              ),
               _popupButton(Icons.close, Colors.red, widget.onCancel),
-              const SizedBox(width: 8),
-              _popupButton(Icons.add_home, Colors.purpleAccent, () {
-                widget.onConfirm(_controller.text, true);
-              }),
+              _popupButton(
+                Icons.add_home,
+                Colors.purpleAccent,
+                () => _handleConfirm(true),
+              ),
             ],
           ),
         ],
@@ -59,15 +110,20 @@ class _AudioPopupDialogState extends State<AudioPopupDialog> {
     );
   }
 
+  // s
   Widget _popupButton(IconData icon, Color color, VoidCallback onPressed) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.all(8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+    return SizedBox(
+      width: 40,
+      height: 40,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        onPressed: onPressed,
+        child: Icon(icon, size: 20, color: Colors.white),
       ),
-      onPressed: onPressed,
-      child: Icon(icon, size: 20, color: Colors.white),
     );
   }
 }

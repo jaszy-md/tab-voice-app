@@ -3,8 +3,18 @@ import 'package:provider/provider.dart';
 import 'controllers/record_button_controller.dart';
 import 'navigation/app_navigation.dart';
 
-void main() {
-  runApp(const VoiceTabApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final controller = RecordButtonController();
+  await controller.loadFromPrefs(); // => doet initializeDefaults() automatisch
+
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider.value(value: controller)],
+      child: const VoiceTabApp(),
+    ),
+  );
 }
 
 class VoiceTabApp extends StatelessWidget {
@@ -12,15 +22,10 @@ class VoiceTabApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => RecordButtonController()),
-      ],
-      child: MaterialApp.router(
-        title: 'VoiceTab',
-        debugShowCheckedModeBanner: false,
-        routerConfig: AppNavigation.router,
-      ),
+    return MaterialApp.router(
+      title: 'VoiceTab',
+      debugShowCheckedModeBanner: false,
+      routerConfig: AppNavigation.router,
     );
   }
 }

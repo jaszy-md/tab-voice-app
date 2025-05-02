@@ -6,18 +6,9 @@ class RecordLovePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF271B43),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: const [
-              SizedBox(height: 12),
-              AudioRecorderWidget(mood: 'love'),
-            ],
-          ),
-        ),
-      ),
+    return const Scaffold(
+      backgroundColor: Color(0xFF271B43),
+      body: SafeArea(child: AudioRecorderWidget(mood: 'love')),
     );
   }
 }
